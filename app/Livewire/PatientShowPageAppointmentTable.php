@@ -48,33 +48,42 @@ class PatientShowPageAppointmentTable extends LivewireTableComponent
 
     public function builder(): Builder
     {
-        $query = Appointment::with('doctor')->where('patient_id', '=', $this->patientId)->select('appointments.*');
+        //\Log::info('Building query with dateFilter: ' . $this->dateFilter);
 
+        $query = Appointment::with('doctor')->where('patient_id', '=', $this->patientId)->select('appointments.*');
+    
         if (getLogInUser()->hasRole('doctor')) {
             $query = Appointment::with(['doctor.user', 'doctor.reviews'])->where('patient_id', '=', $this->patientId)->whereDoctorId(getLogInUser()->doctor->id)->select('appointments.*');
         }
-
+    
+        // Handle the status filter
         $query->when($this->statusFilter != '' && $this->statusFilter != Appointment::ALL_STATUS,
             function (Builder $q) {
                 if ($this->statusFilter != Appointment::ALL) {
                     $q->where('appointments.status', '=', $this->statusFilter);
                 }
             });
-
-        if ($this->dateFilter != '' && $this->dateFilter != getWeekDate()) {
+    
+        // Handle the date filter
+        if (!empty($this->dateFilter)) {
+            \Log::info('Building query with dateFilter: ' . $this->dateFilter);
             $timeEntryDate = explode(' - ', $this->dateFilter);
             $startDate = Carbon::parse($timeEntryDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($timeEntryDate[1])->format('Y-m-d');
             $query->whereBetween('appointments.date', [$startDate, $endDate]);
         } else {
+            \Log::info('not Building query with dateFilter: ' . $this->dateFilter);
+            // Use the default weekly range if no custom date range is selected
             $timeEntryDate = explode(' - ', getWeekDate());
             $startDate = Carbon::parse($timeEntryDate[0])->format('Y-m-d');
             $endDate = Carbon::parse($timeEntryDate[1])->format('Y-m-d');
             $query->whereBetween('appointments.date', [$startDate, $endDate]);
         }
-
+    
         return $query;
     }
+
+
 
     public function changeStatusFilter($status)
     {
@@ -84,10 +93,14 @@ class PatientShowPageAppointmentTable extends LivewireTableComponent
 
     public function changeDateFilter($date)
     {
+        //\Log::info('Date filter changed to: ' . $date);
         $this->dateFilter = $date;
         $this->setBuilder($this->builder());
     }
 
+    public function logData($msg){
+        \Log::info($msg);
+    }
     public function columns(): array
     {
         return [

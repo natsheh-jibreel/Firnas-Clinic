@@ -12,6 +12,13 @@
     <title>{{ getAppName() }} </title>
     <style>
     
+    @font-face {
+            font-family: "Amiri-custom";
+            src: url("{{ asset('fonts/Amiri-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
         .text-center {
             text-align: center !important;
         }
@@ -19,7 +26,7 @@
             text-align: end !important;
         }
         .custom-font-family {
-             font-family: XB Riyaz, sans-serif !important;
+            font-family: 'Amiri-custom', 'DejaVu Sans', 'Arial', sans-serif;
         }
         .w-100 {
             width: 100%;
@@ -52,9 +59,13 @@
         .mb-0 {
             margin-bottom: 0;
         }
+        
+        
+        
         body,h1,h3 {
-            font-family: "XB Riyaz", sans-serif !important;
+            font-family: 'Amiri-custom', 'DejaVu Sans', 'Arial', sans-serif;
             direction: rtl;
+            text-align: right;
             font-size: 0.875rem !important;
             font-weight: lighter !important;
             line-height: normal!important;
@@ -65,6 +76,9 @@
         .fw-bold {
             font-weight:bold !important;
         }
+        .currency-symbol {
+        font-family: XB Riyaz, sans-serif !important;
+    }
     </style>
 </head>
 
@@ -170,18 +184,20 @@
                             </tr>
                             <tr class="font-color">
                                 <td  style="padding-left:10px">Charge:</td>
-                                <td class="custom-font-family text-end " style="padding-right: 20px">
-                                    {{ getCurrencyIcon() . $datas->services->charges }}</td>
+                                <td class="custom-font-family text-end" style="padding-right: 20px">
+                                    <span class="currency-symbol">{{ getCurrencyCode() }} </span>{{ $datas->services->charges }}
+                                </td>
                             </tr>
                             <tr class="font-color">
                                 <td  style="padding-left:10px">Extra Charge:</td>
                                 <td class="custom-font-family text-end " style="padding-right: 20px">
-                                    {{ getCurrencyIcon() . $datas->payable_amount - $datas->services->charges }}</td>
+                                    {{ getCurrencyCode() . ' '. $datas->payable_amount - $datas->services->charges }}</td>
+                                
                             </tr>
                             <tr class="bg-gray">
                                 <th class="" style="padding-left:10px">Payable Amount:</th>
                                 <td class="custom-font-family text-end" style="padding-right: 20px">
-                                    {{ getCurrencyFormat(getCurrencyCode(), $datas->payable_amount) }}</td>
+                                    {{getCurrencyCode().' '. $datas->payable_amount }}</td>
                             </tr>
                         </tbody>
                     </table>

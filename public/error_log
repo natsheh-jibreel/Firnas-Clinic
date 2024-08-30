@@ -1,0 +1,1 @@
+[28-Aug-2024 10:06:58 UTC] PHP Fatal error:  Trait "App\Http\Controllers\ArPHP\I18N\Arabic" not found in /home/devsfasc/firnaslabs.hafizhanif.com/app/Http/Controllers/GeneratePatientSmartCardsController.php on line 14

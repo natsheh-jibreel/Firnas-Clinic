@@ -186,7 +186,8 @@ return [
          *
          * @var string
          */
-        'default_font' => 'serif',
+        //'default_font' => 'serif',
+        'default_font' => 'Amiri',
 
         /**
          * Image DPI setting
@@ -279,6 +280,11 @@ return [
          * @var bool
          */
         'enable_html5_parser' => true,
+        
+        'isHtml5ParserEnabled' => true,
+        'isRemoteEnabled' => true,
+        'isUnicodeEnabled' => true, // Enable Unicode support
+
     ],
 
 ];

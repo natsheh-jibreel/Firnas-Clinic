@@ -21,6 +21,8 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
+use ArPHP\I18N\Arabic;
+
 class PrescriptionController extends AppBaseController
 {
     /** @var  PrescriptionRepository
@@ -306,16 +308,29 @@ class PrescriptionController extends AppBaseController
         return view('prescriptions.show_with_medicine', compact('prescription', 'medicines', 'data'));
     }
 
-    public function convertToPDF($id): \Illuminate\Http\Response
+    
+    public function convertToPDF($id)
     {
+        // Fetch the data as before
         $data = $this->prescriptionRepository->getSettingList();
-
         $prescription = $this->prescriptionRepository->getData($id);
-
         $medicines = $this->prescriptionRepository->getMedicineData($id);
-
-        $pdf = PDF::loadView('prescriptions.prescription_pdf', compact('prescription', 'medicines', 'data'));
-
-        return $pdf->stream($prescription['prescription']->patient->user->full_name.'-'.$prescription['prescription']->id);
+    
+        // Render the HTML content for the PDF
+        $reportHtml = view('prescriptions.prescription_pdf', compact('prescription', 'medicines', 'data'))->render();
+    
+        // Use Ar-PHP to shape the Arabic text correctly
+        $arabic = new Arabic();
+        $p = $arabic->arIdentify($reportHtml);
+    
+        for ($i = count($p)-1; $i >= 0; $i -= 2) {
+            $utf8ar = $arabic->utf8Glyphs(substr($reportHtml, $p[$i-1], $p[$i] - $p[$i-1]));
+            $reportHtml = substr_replace($reportHtml, $utf8ar, $p[$i-1], $p[$i] - $p[$i-1]);
+        }
+    
+        // Generate the PDF with the shaped Arabic text
+        $pdf = PDF::loadHTML($reportHtml);
+        return $pdf->stream($prescription['prescription']->patient->user->full_name.'-'.$prescription['prescription']->id.'.pdf');
     }
+
 }

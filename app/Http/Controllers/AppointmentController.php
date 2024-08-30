@@ -35,6 +35,8 @@ use Illuminate\Support\Str;
 use Stripe\Exception\ApiErrorException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
+use ArPHP\I18N\Arabic;
+
 class AppointmentController extends AppBaseController
 {
     /** @var AppointmentRepository */
@@ -724,12 +726,28 @@ class AppointmentController extends AppBaseController
         return redirect(route('appointments.index'));
     }
 
+    
+
     public function appointmentPdf($id)
     {
-        // $datas = Appointment::with(['patient.user', 'doctor.user', 'services'])->findOrFail($id);
+        // Fetch the appointment data with related models
         $datas = Appointment::with(['patient.user', 'doctor.user', 'services'])->findOrFail($id);
-        $pdf = Pdf::loadView('appointment_pdf.invoice', ['datas' => $datas]);
-
+    
+        // Render the HTML content for the PDF
+        $reportHtml = view('appointment_pdf.invoice', ['datas' => $datas])->render();
+    
+        // Use Ar-PHP to shape the Arabic text correctly
+        $arabic = new Arabic();
+        $p = $arabic->arIdentify($reportHtml);
+    
+        for ($i = count($p)-1; $i >= 0; $i -= 2) {
+            $utf8ar = $arabic->utf8Glyphs(substr($reportHtml, $p[$i-1], $p[$i] - $p[$i-1]));
+            $reportHtml = substr_replace($reportHtml, $utf8ar, $p[$i-1], $p[$i] - $p[$i-1]);
+        }
+    
+        // Generate the PDF with the shaped Arabic text
+        $pdf = Pdf::loadHTML($reportHtml);
         return $pdf->download('invoice.pdf');
     }
+
 }

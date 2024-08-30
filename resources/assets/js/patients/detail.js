@@ -133,9 +133,9 @@ listenClick("#patientAppointmentResetFilter", function () {
     $("#patientShowPageAppointmentStatus").val(1).trigger("change");
     $("#patientShowPageAppointmentDate")
         .val(
-            moment().startOf("week").format("MM/DD/YYYY") +
+            moment().startOf("week").format("DD/MM/YYYY") +
                 " - " +
-                moment().endOf("week").format("MM/DD/YYYY")
+                moment().endOf("week").format("DD/MM/YYYY")
         )
         .trigger("change");
 });

@@ -10,6 +10,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Setting;
 use Flash;
 use PDF;
+use ArPHP\I18N\Arabic;
 
 class GeneratePatientSmartCardsController extends AppBaseController
 {
@@ -60,18 +61,34 @@ class GeneratePatientSmartCardsController extends AppBaseController
         return response()->json(['data' => $data, 'img' => $img, 'clinic_name' => $clinic_name, 'address_one' => $address_one,]);
     }
 
+    
+
     public function smartCardPdf($id)
     {
-
+        // Fetch the data as before
         $datas = Patient::with('smartPatientCard', 'user', 'address')->findOrFail($id);
-
+    
         $logo = Setting::where('key', 'logo')->pluck('value')->first();
         $clinic_name = Setting::where('key','clinic_name')->pluck('value')->first();
         $address_one = Setting::where('key','address_one')->pluck('value')->first();
-
-        $pdf = PDF::loadView('smart_card_pdf.smart_card_pdf', ['datas' => $datas,'logo' => $logo,'clinic_name' => $clinic_name,'address_one' => $address_one]);
+    
+        // Render the HTML content for the PDF
+        $reportHtml = view('smart_card_pdf.smart_card_pdf', compact('datas', 'logo', 'clinic_name', 'address_one'))->render();
+    
+        // Use Ar-PHP to shape the Arabic text correctly
+        $arabic = new Arabic();
+        $p = $arabic->arIdentify($reportHtml);
+    
+        for ($i = count($p)-1; $i >= 0; $i -= 2) {
+            $utf8ar = $arabic->utf8Glyphs(substr($reportHtml, $p[$i-1], $p[$i] - $p[$i-1]));
+            $reportHtml = substr_replace($reportHtml, $utf8ar, $p[$i-1], $p[$i] - $p[$i-1]);
+        }
+    
+        // Generate the PDF with the shaped Arabic text
+        $pdf = PDF::loadHTML($reportHtml);
         return $pdf->download('PatientSmartCard.pdf');
     }
+
 
 
     public function cardQr($id)

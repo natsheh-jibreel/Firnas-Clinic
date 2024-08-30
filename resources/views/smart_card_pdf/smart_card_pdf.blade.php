@@ -20,6 +20,19 @@
         .card .card-header {
             background-color: {{ $datas->smartPatientCard->header_color }};
         }
+        
+        @font-face {
+            font-family: "Amiri-custom";
+            src: url("{{ asset('fonts/Amiri-Regular.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+    
+        body {
+            font-family: 'Amiri-custom', 'DejaVu Sans', 'Arial', sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
     </style>
 
 </head>
@@ -36,7 +49,7 @@
                             <div class="logo me-1 float-start">
                                 <img src="{{ $logo }}" alt="logo" class="img-fluid smart_card__pdf_logo" />
                             </div>
-                            <h4 class="text-white mb-0 fw-bold mt-2" style="width: 550px">{{ $clinic_name }}</h4>
+                            <h4 class="text-white mb-0 fw-bold mt-2" style="width: 550px; direction: ltr; text-align: left;">{{ $clinic_name }}</h4>
                         </div>
                         <div class="flex-1 text-end w-75 ms-auto">
                             <address class="text-white fs-12 mb-0">
